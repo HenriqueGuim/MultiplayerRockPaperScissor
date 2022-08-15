@@ -5,10 +5,10 @@ import java.net.Socket;
 
 public class PlayerHandler  {
     private Socket playerSocket;
-    BufferedReader reader;
-    BufferedWriter writer;
-    boolean isPlaying = false;
-    String playerName;
+    private BufferedReader reader;
+    private BufferedWriter writer;
+    private boolean isPlaying = false;
+    private String playerName;
 
     public String getPlayerName() {
         return playerName;
@@ -68,5 +68,13 @@ public class PlayerHandler  {
     }
     public void endGame(){
         isPlaying = false;
+    }
+
+    public void closeSocket() {
+        try {
+            playerSocket.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

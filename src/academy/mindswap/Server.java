@@ -47,7 +47,7 @@ public class Server {
 
                 while (playerArray[1] == null){
                 for (PlayerHandler player : playerList) {
-                    if (!player.isOffline() && player != playerArray[0] && !player.isPlaying) {
+                    if (!player.isOffline() && player != playerArray[0] && !player.isPlaying()) {
                         playerArray[playerCounter] = player;
                         playerCounter++;
                     }
@@ -61,7 +61,7 @@ public class Server {
 
                 System.out.println("starting a new game");
                 Game game = new Game(playerArray);
-                game.run();
+                new Thread(game).start();
                 Arrays.stream(playerArray).forEach(PlayerHandler::startGame);
                 findPlayer();
 
@@ -83,13 +83,15 @@ public class Server {
                 Socket clientSocket = serverSocket.accept();
 
                 PlayerHandler playerHandler = new PlayerHandler(clientSocket);
+
+                playerHandler.sendMessage("Please indicate your name");
+
+                playerHandler.setPlayerName(playerHandler.receiveMessage());
+
+                playerHandler.sendMessage("Be welcome " + playerHandler.getPlayerName());
+                playerHandler.sendMessage("Please wait for another player");
+
                 playerList.add(playerHandler);
-
-                playerHandler.sendMessage("Welcome to our game server. Please indicate your name");
-
-                //playerHandler.setPlayerName(playerHandler.receiveMessage());
-
-
                 System.out.println("A new player arrived");
                 acceptPlayer();
 

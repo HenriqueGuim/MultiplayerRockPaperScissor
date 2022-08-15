@@ -5,7 +5,6 @@ import java.net.Socket;
 
 public class Player {
     Socket socket;
-    String playerName;
     BufferedReader serverReader;
     BufferedReader consoleReader;
     BufferedWriter serverWriter;
@@ -22,8 +21,21 @@ public class Player {
     private void handleServer(){
         setServer();
         createServerComms();
-        listenServer();
+        ServerListner serverListner = new ServerListner();
+        new Thread(serverListner).start();
+        serverWriter();
         close();
+    }
+
+    private void serverWriter() {
+        try {
+            serverWriter.write(consoleReader.readLine());
+            serverWriter.newLine();
+            serverWriter.flush();
+            serverWriter();
+        } catch (IOException e) {
+            return;
+        }
     }
 
     private void close() {
@@ -34,15 +46,7 @@ public class Player {
         }
     }
 
-    private void listenServer() {
-        try {
-            String message = serverReader.readLine();
-            System.out.println(message);
-            listenServer();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+
 
     private void createServerComms() {
         try {
@@ -72,22 +76,26 @@ public class Player {
     private void setConsoleReader() {
         consoleReader = new BufferedReader(new InputStreamReader(System.in));
     }
-    public MoveType sendMove(){
-        try {
-            String move = consoleReader.readLine();
-            move.toLowerCase();
 
-            switch (move){
-                case "rock": return MoveType.ROCK;
-                case "scissor": return MoveType.SCISSOR;
-                case "paper" : return MoveType.PAPER;
-                default:
-                    System.out.println("please insert a valid move");
-                    return sendMove();
+    private class ServerListner implements Runnable{
+        private void listenServer() {
+            try {
+                String message = serverReader.readLine();
+                if (message == null){
+                    serverWriter.close();
+                    return;
+                }
+                System.out.println(message);
+                listenServer();
+            } catch (IOException e) {
+                e.printStackTrace();
+
             }
+        }
 
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        @Override
+        public void run() {
+            listenServer();
         }
     }
 }
