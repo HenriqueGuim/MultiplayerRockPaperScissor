@@ -26,9 +26,6 @@ public class Server {
             playerList = new ArrayList<PlayerHandler>();
             System.out.println("Server is Running");
 
-            FindPlayer findPlayer = new FindPlayer();
-            new Thread(findPlayer).start();
-
             AcceptPlayer acceptPlayer = new AcceptPlayer();
             new Thread(acceptPlayer).start();
 
@@ -40,38 +37,30 @@ public class Server {
 
     }
 
-    private class FindPlayer implements Runnable {
-        private void findPlayer() {
+
+        public void findPlayer() {
             PlayerHandler[] playerArray = new PlayerHandler[2];
             int playerCounter = 0;
 
-                while (playerArray[1] == null){
+
                 for (PlayerHandler player : playerList) {
                     if (!player.isOffline() && player != playerArray[0] && !player.isPlaying()) {
                         playerArray[playerCounter] = player;
                         playerCounter++;
                     }
                 }
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
+
+                if(playerArray[1] != null) {
+                    System.out.println("starting a new game");
+                    Game game = new Game(playerArray, this);
+                    new Thread(game).start();
+                    Arrays.stream(playerArray).forEach(PlayerHandler::startGame);
                 }
 
-                System.out.println("starting a new game");
-                Game game = new Game(playerArray);
-                new Thread(game).start();
-                Arrays.stream(playerArray).forEach(PlayerHandler::startGame);
-                findPlayer();
-
         }
 
-        @Override
-        public void run() {
-            findPlayer();
-        }
-    }
+
+
 
 
 
@@ -93,6 +82,7 @@ public class Server {
 
                 playerList.add(playerHandler);
                 System.out.println("A new player arrived");
+                findPlayer();
                 acceptPlayer();
 
             } catch (IOException e) {

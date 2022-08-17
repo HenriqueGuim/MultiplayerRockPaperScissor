@@ -5,12 +5,15 @@ public class Game implements Runnable {
     private PlayerHandler player2;
     private String player1Name;
     private String player2Name;
-    int player1Points = 0;
-    int player2Points = 0;
+    private int player1Points = 0;
+    private int player2Points = 0;
+    private Server server;
+
 
     private final int WINING_OBJECTIVE = 3;
 
-    public Game(PlayerHandler[] playerArray) {
+    public Game(PlayerHandler[] playerArray, Server server) {
+        this.server = server;
         player1 = playerArray[0];
         player2 = playerArray[1];
     }
@@ -70,6 +73,8 @@ public class Game implements Runnable {
 
     private void checkWantsPlay() {
         sendMessageToPlayers("Want to continue playing?");
+        player1Points=0;
+        player2Points=0;
         endGameResponse(player1);
         endGameResponse(player2);
     }
@@ -79,6 +84,7 @@ public class Game implements Runnable {
         response.toLowerCase();
         switch (response){
             case "yes": player.sendMessage("Wait while we search for a new opponent");
+                        server.findPlayer();
                         player.endGame();
             return;
             case "no": player.sendMessage("Thank you for playing with us.");
