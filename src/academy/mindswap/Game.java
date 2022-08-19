@@ -84,8 +84,8 @@ public class Game implements Runnable {
         response.toLowerCase();
         switch (response){
             case "yes": player.sendMessage("Wait while we search for a new opponent");
-                        server.findPlayer();
                         player.endGame();
+                        server.findPlayer();
             return;
             case "no": player.sendMessage("Thank you for playing with us.");
                         player.closeSocket();
